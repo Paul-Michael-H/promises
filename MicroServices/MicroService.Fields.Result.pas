@@ -49,7 +49,7 @@ end;
 
 function MockRecord: TFields;
 const
-  MockCount = 10;
+  MockCount = 20;
 var
   i: integer;
 begin

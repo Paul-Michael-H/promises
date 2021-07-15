@@ -1,0 +1,53 @@
+package MicroServices;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  IndyCore,
+  IndyIPClient,
+  IndyIPCommon,
+  IndyIPServer,
+  IndyProtocols,
+  IndySystem;
+
+contains
+  MicroService.Custom.Connector in 'MicroService.Custom.Connector.pas',
+  MicroService.Custom.Server in 'MicroService.Custom.Server.pas',
+  MicroService.Fields.Connector in 'MicroService.Fields.Connector.pas',
+  MicroService.FieldData.Result in 'MicroService.FieldData.Result.pas',
+  MicroService.Fields.Server in 'MicroService.Fields.Server.pas',
+  MicroService in 'MicroService.pas',
+  Promise in '..\Promise\Promise.pas',
+  MicroService.Fields.Result in 'MicroService.Fields.Result.pas',
+  MicroService.FieldData.Connector in 'MicroService.FieldData.Connector.pas',
+  MicroService.FieldData.Server in 'MicroService.FieldData.Server.pas';
+
+end.
+
+
