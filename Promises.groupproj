@@ -9,6 +9,9 @@
         <Projects Include="Promise\Test\PromiseTests.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="MicroServices\MicroServices.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="PromiseTests:Make">
         <MSBuild Projects="Promise\Test\PromiseTests.dproj" Targets="Make"/>
     </Target>
+    <Target Name="MicroServices">
+        <MSBuild Projects="MicroServices\MicroServices.dproj"/>
+    </Target>
+    <Target Name="MicroServices:Clean">
+        <MSBuild Projects="MicroServices\MicroServices.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MicroServices:Make">
+        <MSBuild Projects="MicroServices\MicroServices.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="GetFields;PromiseTests"/>
+        <CallTarget Targets="GetFields;PromiseTests;MicroServices"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="GetFields:Clean;PromiseTests:Clean"/>
+        <CallTarget Targets="GetFields:Clean;PromiseTests:Clean;MicroServices:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="GetFields:Make;PromiseTests:Make"/>
+        <CallTarget Targets="GetFields:Make;PromiseTests:Make;MicroServices:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

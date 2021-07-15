@@ -32,6 +32,8 @@ type
     FReject: TResult;
 
     procedure CreateData;
+    procedure Start;
+    procedure Stop;
   protected
     procedure AddCatch(const aReject: TFunc<TResult,TResult> = nil);
     procedure AddTask(const aTask: TFunc<TResult,TResult> = nil;
@@ -80,7 +82,7 @@ begin
   FProcessingThread := TProcessingThread.CreateNamed(Cardinal(Pointer(Self)).ToHexString,
     procedure(const aProcessingThread: IProcessingThread)
     begin
-      FDone := True;
+      Stop;
     end
   );
 end;
@@ -88,7 +90,7 @@ end;
 
 procedure TPromise<TResult>.AddCatch(const aReject: TFunc<TResult, TResult>);
 begin
-  FDone := False;
+  Start;
   FProcessingThread.Process(
     procedure
     begin
@@ -105,7 +107,7 @@ end;
 procedure TPromise<TResult>.AddTask(const aTask: TFunc<TResult, TResult>;
                                     const aReject: TFunc<TResult, TResult>);
 begin
-  FDone := False;
+  Start;
   FProcessingThread.Process(
     procedure
     var
@@ -178,6 +180,23 @@ end;
 function TPromise<TResult>.Response: TResult;
 begin
   Result := FResponse;
+end;
+
+
+procedure TPromise<TResult>.Start;
+begin
+  if FDone then
+  begin
+    FDone := False;
+  end;
+end;
+
+procedure TPromise<TResult>.Stop;
+begin
+  if not FDone then
+  begin
+    FDone := True;
+  end;
 end;
 
 

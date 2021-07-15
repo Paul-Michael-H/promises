@@ -14,4 +14,10 @@ object frmDynamic: TfrmDynamic
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object timerFieldData: TTimer
+    Interval = 5000
+    OnTimer = timerFieldDataTimer
+    Left = 24
+    Top = 16
+  end
 end
