@@ -1,0 +1,39 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+#Delphi files
+*.drc
+*.map
+*.local
+*.identcache
+*.res
+*.bak
+*.~*
+*.dsk
+*.tvsconfig
+*.exe
+*.bpl
+*.dcp
+*.dcu
+*.skincfg
+dcu/
+__history/
+__recovery/
+bin/
+lib/
+#visual studio files
+*.obj
+*.log
+*.pdb
+*.idb
+*.user
+*.lib
+*.filters
+.vs/
+Release/
+Debug/
+obj/
+*.tlog/
+Backup/
+inclib_test/

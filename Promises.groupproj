@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{6014F87B-4B52-4A49-98E2-1A907DA296AE}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Prototypes\getFields\GetFields.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Promise\Test\PromiseTests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="GetFields">
+        <MSBuild Projects="Prototypes\getFields\GetFields.dproj"/>
+    </Target>
+    <Target Name="GetFields:Clean">
+        <MSBuild Projects="Prototypes\getFields\GetFields.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GetFields:Make">
+        <MSBuild Projects="Prototypes\getFields\GetFields.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PromiseTests">
+        <MSBuild Projects="Promise\Test\PromiseTests.dproj"/>
+    </Target>
+    <Target Name="PromiseTests:Clean">
+        <MSBuild Projects="Promise\Test\PromiseTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PromiseTests:Make">
+        <MSBuild Projects="Promise\Test\PromiseTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="GetFields;PromiseTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="GetFields:Clean;PromiseTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="GetFields:Make;PromiseTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
