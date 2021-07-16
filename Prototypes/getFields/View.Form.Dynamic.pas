@@ -40,9 +40,13 @@ type
 
 
   TfrmDynamic = class(TForm)
-    timerFieldData: TTimer;
+    pnlCommands: TPanel;
+    pnlControls: TPanel;
+    btnGetFields: TButton;
+    btnGetData: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure timerFieldDataTimer(Sender: TObject);
+    procedure btnGetFieldsClick(Sender: TObject);
+    procedure btnGetDataClick(Sender: TObject);
   private
     { Private declarations }
     FFieldsPromise: IFieldsPromise;
@@ -53,17 +57,17 @@ type
     FNextYPosition: integer;
     FNextXPosition: integer;
     FFieldDictionary: IFieldDictionary;
-    FCounter: integer;
 
     procedure AddControl(const aName: string);
     procedure RequestFields;
     procedure CleanControlData;
     procedure RequestFieldDataSynchronous;
     procedure RequestFieldDataAsynchronous;
+    procedure RequestFieldDataList;
     function HandleGetFields(aValue: TFields): TFields;
     function GetEditByName(const aName: string): TEdit;
   private
-    function newFieldDataPromise(const aName: string): IFieldDataPromise;
+    function newFieldDataPromise(const aList: string): IFieldDataPromise;
     function HandleFieldData(aValue: TStringFieldData): TStringFieldData;
   public
     { Public declarations }
@@ -80,14 +84,14 @@ implementation
 
 const
   URL_GetFields = 'http://localhost:27369/getFields';
-  URL_GetData = 'http://localhost:27370/getData?name=%s';
+  URL_GetData = 'http://localhost:27370/getData?list=%s';
 
 procedure TfrmDynamic.AddControl(const aName: string);
 
   function CreateLabel: TLabel;
   begin
     Result := TLabel.Create(Self);
-    Result.Parent := Self;
+    Result.Parent := pnlControls;
     Result.Name := aName+'_label';
     Result.Caption := aName;
     Result.Top := FNextYPosition;
@@ -98,7 +102,7 @@ procedure TfrmDynamic.AddControl(const aName: string);
   function CreateEdit(const aOffset: integer): TEdit;
   begin
     Result := TEdit.Create(Self);
-    Result.Parent := Self;
+    Result.Parent := pnlControls;
     Result.Name := aName;
     Result.Text := '';
     Result.Top := FNextYPosition;
@@ -115,7 +119,7 @@ begin
     Edit := CreateEdit(EditLabel.Width + 20);
     FFieldDictionary.Add(aName, Edit);
     Inc(FNextYPosition, Edit.Height+5);
-    if FNextYPosition > (Self.ClientHeight - Edit.Height - 10)  then
+    if FNextYPosition > (pnlControls.ClientHeight - Edit.Height - 10)  then
     begin
       FNextYPosition := 5;
       FNextXPosition := Edit.Left + Edit.Width + 20;
@@ -123,6 +127,23 @@ begin
   finally
     Unlock;
   end;
+end;
+
+
+procedure TfrmDynamic.btnGetDataClick(Sender: TObject);
+begin
+  if FFieldDictionary.Count > 0 then
+  begin
+    CleanControlData;
+    RequestFieldDataList;
+  end;
+end;
+
+
+procedure TfrmDynamic.btnGetFieldsClick(Sender: TObject);
+begin
+  if FFieldDictionary.Count = 0 then
+    RequestFields;
 end;
 
 
@@ -141,14 +162,12 @@ end;
 
 procedure TfrmDynamic.FormCreate(Sender: TObject);
 begin
-  FCounter := 0;
   FNextYPosition := 5;
   FNextXPosition := 5;
   FCriticalSection := TCriticalSection.Create;
   FFieldsConnector := TFieldsConnector.Create;
   FFieldDataConnector := TFieldDataConnector.Create;
   FFieldDictionary := TFieldDictionary.Create;
-  RequestFields;
 end;
 
 
@@ -158,9 +177,9 @@ var
   Control: TControl;
 begin
   Result := nil;
-  for i := 0 to Self.ControlCount-1 do
+  for i := 0 to pnlControls.ControlCount-1 do
   begin
-    Control := Self.Controls[i];
+    Control := pnlControls.Controls[i];
     if Control.Name = aName then
       Result := Control as TEdit;
   end;
@@ -222,7 +241,6 @@ var
  FieldName: string;
 begin
   FFieldDataPromise := nil;
-  timerFieldData.Enabled := False;
   Keys := FFieldDictionary.GetKeys;
   for FieldName in Keys do
   begin
@@ -233,12 +251,6 @@ begin
       AddWhen(FieldName);
     end;
   end;
-  FFieldDataPromise.Catch(
-    function(aValue: TStringFieldData): TStringFieldData
-    begin
-      timerFieldData.Enabled := True;
-    end
-  );
 end;
 
 
@@ -248,7 +260,6 @@ var
  FieldName: string;
 begin
   FFieldDataPromise := nil;
-  timerFieldData.Enabled := False;
   Keys := FFieldDictionary.GetKeys;
   if Keys.Count > 0 then
   begin
@@ -287,13 +298,23 @@ begin
         end,
         nil
       );
-    FFieldDataPromise.Catch(
-      function(aValue: TStringFieldData): TStringFieldData
-      begin
-        timerFieldData.Enabled := True;
-      end
-    );
   end;
+end;
+
+
+procedure TfrmDynamic.RequestFieldDataList;
+var
+  List: string;
+  FieldName: string;
+begin
+  for FieldName in FFieldDictionary.GetKeys do
+  begin
+    if List = '' then
+      List := FieldName
+    else
+      List := Concat(List, ',', FieldName);
+  end;
+  FFieldDataPromise := newFieldDataPromise(List);
 end;
 
 
@@ -304,9 +325,9 @@ begin
 end;
 
 
-function TfrmDynamic.newFieldDataPromise(const aName: string): IFieldDataPromise;
+function TfrmDynamic.newFieldDataPromise(const aList: string): IFieldDataPromise;
 begin
-  Result := FFieldDataConnector.newPromise(Format(URL_GetData,[aName]));
+  Result := FFieldDataConnector.newPromise(Format(URL_GetData,[aList]));
   Result.When(HandleFieldData, nil);
 end;
 
@@ -314,24 +335,21 @@ end;
 function TfrmDynamic.HandleFieldData(aValue: TStringFieldData): TStringFieldData;
 var
   Edit: TEdit;
+  i: integer;
 begin
-  Edit := GetEditByName(aValue.name);
-  if assigned(Edit) then
-    Edit.Text := aValue.data;
-  Result := aValue;
-end;
-
-
-procedure TfrmDynamic.timerFieldDataTimer(Sender: TObject);
-begin
-  CleanControlData;
-  if Odd(FCounter) then
+  for i := 0 to Length(aValue.list)-1 do
   begin
-    RequestFieldDataAsynchronous;
-  end
-  else
-  begin
-    RequestFieldDataSynchronous;
+    Edit := GetEditByName(aValue.list[i].name);
+    if assigned(Edit) then
+    begin
+      Lock;
+      try
+        Edit.Text := aValue.list[i].data;
+      finally
+        Unlock;
+      end;
+    end;
+    Result := aValue;
   end;
 end;
 

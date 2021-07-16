@@ -56,7 +56,8 @@ procedure TMicroService.ExtractCommand(const aContext: TIdContext;
     Split: TArray<String>;
   begin
     Split := aParameter.Split(['=']);
-    if Length(Split) = 2 then
+    if     (Length(Split) = 2)
+       and (Split[0].ToLower = 'list') then
       Result := Split[1]
     else
       Result := '';
