@@ -18,7 +18,7 @@ uses
 
 
 type
-  TStringFieldData = TFieldData<string>;
+  TStringFieldData = TFieldsData<string>;
 
   IConnector = interface(IConnector<TStringFieldData>)
     ['{D31F77BD-C9B3-492E-AFA3-5EF498099237}']
